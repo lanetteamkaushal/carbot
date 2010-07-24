@@ -19,5 +19,4 @@ Connect CAN232 to wires of 18-pin connector as follows
 ||YELLOW/RED || POWER ||
 ||BROWN || GROUND ||
 
-I've soldered a wire within CAN232 that goes from POWER on CAN side to pin-9 on RS232 side, this way I power my Bluetooth serial adapter off CAN232. No wires needed :-)
-~                                                                                                                                                                                       
+I've soldered a wire within CAN232 that goes from POWER on CAN side to pin-9 on RS232 side, this way I power my Bluetooth serial adapter off CAN232. No wires needed :-)                                                                                                                                                                                      
