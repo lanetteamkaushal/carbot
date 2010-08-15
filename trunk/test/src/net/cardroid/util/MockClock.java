@@ -1,0 +1,15 @@
+package net.cardroid.util;
+
+/**
+ * Date: Apr 23, 2010
+ * Time: 1:51:44 AM
+ *
+ * @author Lex Nikitin
+ */
+public class MockClock implements Clock {
+    public long time = 10;
+
+    @Override public long time() {
+        return time;
+    }
+}

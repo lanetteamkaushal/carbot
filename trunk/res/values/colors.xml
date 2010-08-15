@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<color name="loading_progress_background">#77555555</color>
+<color name="translucent_black">#99000000</color>
+<color name="secondary_text_nofocus">#EEEEEE</color>
+</resources>
