@@ -9,7 +9,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="cardroid" />
     <orderEntry type="library" name="Android" level="application" />
     <orderEntry type="module-library">
       <library>
@@ -24,6 +23,8 @@
         </SOURCES>
       </library>
     </orderEntry>
+    <orderEntry type="library" name="carbotTest-libraries" level="project" />
+    <orderEntry type="module" module-name="carbot" />
   </component>
 </module>
 
