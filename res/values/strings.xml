@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello World, Cardroid!</string>
+    <string name="app_name">cardroid</string>
+<string name="waiting_for_connection">Waiting for connection with</string>
+<string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving Bluetooth Chat.</string>
+<string name="send">Send</string>
+
+<string name="fake_on">Fake On</string>
+<string name="filter_off">Filter Off</string>
+<string name="learn_on">Learn On</string>
+<string name="learn_off">Learn Off</string>
+<string name="filter_on">Filter On</string>
+<string name="clear_button">Clear</string>
+<string name="button_on">Button On</string>
+<string name="button_off">Button Off</string>
+<string name="edit_message_button">Edit Message</string>
+<string name="message_name">Message name</string>
+<string name="message_pattern">Message pattern</string>
+<string name="save_button">Save</string>
+<string name="delete_button">Delete</string>
+<string name="cancel_button">Cancel</string>
+<string name="operations_spinner_prompt">Select</string>
+<string name="no_apps">No apps</string>
+
+<string name="save_command_button">Save command</string>
+<string name="replay_button">Replay</string>
+<string-array name="operation_array">
+	<item>Add</item>
+	<item>Sub/msg</item>
+	<item>Sub/id</item>
+	<item>Int/msg</item>
+	<item>Int/id</item>
+	<item>Trigger</item>
+	<item>Less</item>
+	<item>Greater</item>
+</string-array>
+<string name="command_name">Command name</string>
+</resources>

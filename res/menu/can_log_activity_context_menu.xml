@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item android:title="Deselect all"
+	      android:id="@+id/deselect_all_menu">
+	</item>
+	<item android:title="Select all"
+	      android:id="@+id/select_all_menu">
+	</item>
+</menu>

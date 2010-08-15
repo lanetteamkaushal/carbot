@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item android:title="More">
+        <menu>
+            <group android:id="@+id/checkable_group"
+                    android:checkableBehavior="all">
+                <item android:id="@+id/filter_on_menu"
+                        android:title="@string/filter_on" />
+                <item android:id="@+id/fake_on_menu" 
+                	android:title="@string/fake_on" />
+            </group>
+        </menu>
+	</item>
+	<item android:title="View suspected"
+	      android:id="@+id/view_suspected_menu">
+	</item>
+	<item android:title="Replay suspected"
+	      android:id="@+id/replay_menu">
+	</item>
+	<item android:title="Save log"
+	      android:id="@+id/save_log_menu">
+	</item>
+	<item android:title="Load log"
+	      android:id="@+id/load_log_menu">
+	</item>
+	<item android:title="Edit command"
+	      android:id="@+id/edit_command_menu">
+	</item>
+</menu>

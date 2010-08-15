@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="fill_parent"
+  android:gravity="center_vertical"
+  android:paddingLeft="6dip"
+  android:paddingRight="6dip"
+  android:layout_height="wrap_content" 
+  android:layout_marginTop="1dp" 
+  android:layout_marginBottom="1dp" 
+  android:checkMark="?android:attr/listChoiceIndicatorMultiple">
+  <ImageView android:src="@drawable/dpad" android:scaleType="fitCenter" android:layout_width="50px" android:layout_height="25px"/>
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Dpad mode" android:paddingLeft="8px"></TextView>
+</LinearLayout>
