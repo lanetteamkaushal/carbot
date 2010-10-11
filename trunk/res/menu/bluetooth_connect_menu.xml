@@ -9,6 +9,9 @@
             </group>
         </menu>
 	</item>
+    <item android:title="Pick device"
+          android:id="@+id/pick_device_menu">
+    </item>
 	<item android:title="Exit"
 	      android:id="@+id/exit_menu">
 	</item>	

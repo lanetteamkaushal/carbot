@@ -61,6 +61,6 @@
 		        <action android:name="android.bluetooth.BluetoothDevice.ACTION_FOUND" />
 		    </intent-filter>            
 		</receiver>
-	</application>
+    </application>
     <uses-sdk android:minSdkVersion="7" />
 </manifest>

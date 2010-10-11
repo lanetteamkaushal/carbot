@@ -143,6 +143,7 @@ public class DeviceConnectionServiceImpl implements DeviceConnectionService {
                         mmIsConnected = true;
                         read();
                     } finally {
+                        Log.i(TAG, "Notifying connectionLost");
                         mConnectionListenerInvocator.connectionLost();
                         mmIsConnected = false;
                         mmSocketInputStream = null;
