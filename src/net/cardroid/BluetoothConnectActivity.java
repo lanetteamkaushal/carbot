@@ -2,10 +2,10 @@ package net.cardroid;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.content.Context;
-import android.content.Intent;
+import android.content.*;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.inject.Inject;
+import net.cardroid.android.BluetoothDevicePicker;
 import net.cardroid.can.Can232Adapter;
 import net.cardroid.io.*;
 import roboguice.activity.GuiceActivity;
@@ -31,17 +32,13 @@ public class BluetoothConnectActivity extends GuiceActivity {
 	@InjectView(R.id.status_text_view) TextView mStatusTextView;
 
     private ConnectionListener mBluetoothListener;
+    private final BroadcastReceiver mBluetoothPickerReceiver = new BluetoothConnectActivityReceiver(this);
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.bluetooth_connect);
-    }
-    	
-    @Override public void onStart() {
-        super.onStart();
-        if(D) Log.e(TAG, "++ ON START ++");
-
+        
         // If BT is not on, request that it be enabled.
         // setupChat() will then be called during onActivityResult
         if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
@@ -50,18 +47,44 @@ public class BluetoothConnectActivity extends GuiceActivity {
         }
 
         mBluetoothListener = new ConnectionListenerForHandler(createBluetoothListener(), new Handler());
-    }
-
-    @Override
-    public synchronized void onResume() {
-        super.onResume();
-        if(D) Log.e(TAG, "+ ON RESUME +");
         mDeviceConnectionService.addListener(mBluetoothListener);
+
+        if (mCardroid.getCardroidService() == null) {
+            bindService(new Intent(this, CardroidService.class), new ServiceConnection() {
+                @Override public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                    mCardroid.setCardroidService((ICardroidService) iBinder);
+                    connectToService(BluetoothConnectActivity.this.mCardroid.getCardroidService().getDefaultAdapter());
+                }
+
+                @Override public void onServiceDisconnected(ComponentName componentName) {
+                    mCardroid.setCardroidService(null);
+                    Log.e(TAG, "Unexpectedly disconnected from CardroidService.");
+                }
+            }, Context.BIND_AUTO_CREATE);
+        } else {
+            connectToService(mCardroid.getCardroidService().getDefaultAdapter());
+        }        
+    }
+    	
+    @Override public void onStart() {
+        super.onStart();
+        if(D) Log.i(TAG, "++ ON START ++");
     }
 
-    @Override protected void onPause() {
-        super.onPause();    
-        if(D) Log.e(TAG, "+ ON PAUSE +");
+    void connectToService(String defaultAdapter) {
+        if (defaultAdapter == null) {
+            registerReceiver(mBluetoothPickerReceiver, new IntentFilter(BluetoothDevicePicker.ACTION_DEVICE_SELECTED));
+            startActivity(new Intent(BluetoothDevicePicker.ACTION_LAUNCH)
+                .putExtra(BluetoothDevicePicker.EXTRA_NEED_AUTH, false)
+                .putExtra(BluetoothDevicePicker.EXTRA_FILTER_TYPE, BluetoothDevicePicker.FILTER_TYPE_ALL)
+                .setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS));
+        } else {
+            mCardroid.getCardroidService().connectTo(defaultAdapter);
+        }
+    }
+
+    @Override protected void onDestroy() {
+    	super.onDestroy();
         mDeviceConnectionService.removeListener(mBluetoothListener);
     }
 
@@ -78,11 +101,14 @@ public class BluetoothConnectActivity extends GuiceActivity {
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
-		case R.id.exit_menu:
-			finish();
-			break;
+        case R.id.exit_menu:
+            finish();
+            break;
+        case R.id.pick_device_menu:
+            connectToService(null);
+            break;
         case R.id.fake_on_menu:
-            mCardroid.setIsFake(!item.isChecked());
+            mCardroid.getCardroidService().setIsFake(!item.isChecked());
             break;
 		}
 		return true;
@@ -121,14 +147,18 @@ public class BluetoothConnectActivity extends GuiceActivity {
             }
 
             @Override public void connected(DeviceConnector deviceConnector) {
-                setStatusText("Connected to " + deviceConnector.getName());
-                finish();
+                onConnected(deviceConnector);
             }
 
             @Override public void idle(int idleDelay) {
                 setStatusText("Waiting for " + (idleDelay / 1000) + " sec");
             }
         };
+    }
+
+    private void onConnected(DeviceConnector deviceConnector) {
+        setStatusText("Connected to " + deviceConnector.getName());
+        finish();
     }
 
     private void setStatusText(String text) {
@@ -144,4 +174,5 @@ public class BluetoothConnectActivity extends GuiceActivity {
     public static void start(Context context) {
         context.startActivity(new Intent(context, BluetoothConnectActivity.class));
     }
+
 }

@@ -18,6 +18,7 @@ public final class CanMessage {
 	private final String data;
 	private final long   timestampMillis; 
 	private BigInteger dataBigInteger;
+	private short [] bytes;
 
 	public CanMessage(CanMessage.Type type, int destination, String data, long timestampMillis) {
 		this.type = checkNotNull(type);
@@ -31,6 +32,17 @@ public final class CanMessage {
 	public String  getData           () { return data; }
 	public long    getTimestampMillis() { return timestampMillis; }
 
+    public short [] getDataBytes () {
+        if (bytes == null) {
+            int nBytes = getData().length() / 2;
+            bytes = new short[nBytes];
+            for (int i = 0; i < bytes.length; i++) {
+                bytes[i] = Short.parseShort(getData().substring(i * 2, i * 2 + 2), 16);
+            }
+        }
+        return bytes;
+    }
+
     public BigInteger getDataBigInteger () {
         if (dataBigInteger == null) {
             dataBigInteger = new BigInteger(data, 16);
@@ -39,7 +51,9 @@ public final class CanMessage {
     }
 
 	public String toString() {
-		return "t" + Integer.toHexString(getDestination()).toUpperCase() + Integer.toHexString(getData().length() / 2).toUpperCase() + getData();
+        String destination = Integer.toHexString(getDestination());
+        destination = "000".substring(destination.length()) + destination;
+        return "t" + destination.toUpperCase() + Integer.toHexString(getData().length() / 2).toUpperCase() + getData();
 	}
 
 	public boolean sameMessage(CanMessage message) {

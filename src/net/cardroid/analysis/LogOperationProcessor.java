@@ -231,10 +231,26 @@ public class LogOperationProcessor {
 
         @Override public boolean applyMessage(CanMessage message) {
             CanLog.Item item = mCanLog.findItemByDestination(message.getDestination());
-            if (item != null
-                && item.getCanMessage().getDataBigInteger().compareTo(message.getDataBigInteger()) == mmComparisonResult) {
-                mmAppliedMessages.add(message);
-                return true;
+            if (item != null) {
+                short[] itemBytes = item.getCanMessage().getDataBytes();
+                short[] messageBytes = message.getDataBytes();
+                if (messageBytes.length == itemBytes.length) {
+                    boolean hasByte = false;
+                    for (int i = 0; i < messageBytes.length; i++) {
+                        short messageByte = messageBytes[i];
+                        if (Integer.signum(messageByte - itemBytes[i]) == mmComparisonResult) {
+                            hasByte = true;
+                            break;
+                        }
+                    }
+                    if (hasByte) {
+                        mmAppliedMessages.add(message);
+                        return true;
+                    }
+                }
+
+                mCanLog.remove(item);
+                return false;                
             } else {
                 return false;
             }
@@ -248,21 +264,16 @@ public class LogOperationProcessor {
             for (Iterator<? extends CanLog.Item> i = mCanLog.iterator(); i.hasNext();) {
                 CanLog.Item item = i.next();
 
-                boolean matches = false;
                 boolean matchesDestination = false;
                 for (CanMessage message: mmAppliedMessages) {
-                    if (item.matches(message)) {
-                        matches = true;
-                        break;
-                    }
                     if (item.matchesDestination(message.getDestination())) {
                         matchesDestination = true;
                     }
                 }
 
-                if (!matches && !matchesDestination) {
+                if (!matchesDestination) {
                     i.remove();
-                } else if (matchesDestination) {
+                } else {
                     mCanLog.setItemDestinationMatcher(item);
                 }
             }

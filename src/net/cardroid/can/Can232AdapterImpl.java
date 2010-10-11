@@ -11,6 +11,7 @@ import net.cardroid.io.ConnectionListenerAdapter;
 import net.cardroid.io.DeviceConnectionService;
 import net.cardroid.io.DeviceConnector;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -32,7 +33,7 @@ public class Can232AdapterImpl implements Can232Adapter {
     private static final String TAG = "Can232Adapter";
     private static final boolean D = true;
     private static final int CONNECTION_SETUP_DELAY_MS = 500;
-    private static final int CONNECTION_SETUP_TIMEOUT_MS = 20000;
+    private static final int MAX_CONNECTION_ATTEMPTS = 20;
 
     @VisibleForTesting static final int MESSAGE_QUEUE_SIZE = 8;
 
@@ -72,7 +73,7 @@ public class Can232AdapterImpl implements Can232Adapter {
 	}
 
     @Override public boolean isConnected() {
-        return mDeviceConnectionService.isConnected();
+        return mDeviceConnectionService != null && mDeviceConnectionService.isConnected();
     }
 
 	@Override
@@ -169,33 +170,42 @@ public class Can232AdapterImpl implements Can232Adapter {
     }
 
     private final ConnectionListener mConnectionListener = new ConnectionListenerAdapter() {
+        private int mmConnectionAttempts = 0;
         private Timer mmInitializerThread = new Timer();
 
-        @Override public void connected(DeviceConnector deviceConnector) {
+        @Override public void connected(final DeviceConnector deviceConnector) {
             Log.i(TAG, "Connected to adapter");
             mmInitializerThread.cancel();
             mmInitializerThread = new Timer();
             mmInitializerThread.schedule(new TimerTask() {
                 @Override public void run() {
-                    Log.i(TAG, "Initializing adapter for 100K");
+                    // close bluetooth connection if failed to connect
+                    if (mmConnectionAttempts == MAX_CONNECTION_ATTEMPTS) {
+                        Log.i(TAG, "Exceeded connection attempts. Closing device connector.");
+                        try {
+                            deviceConnector.close();
+                        } catch (IOException e) {
+                            Log.e(TAG, e.toString(), e);
+                        }
+                        return;
+                    }
+
+                    mmConnectionAttempts++;
+                    Log.i(TAG, "Looking up adapter version");
                     mDeviceConnectionService.write("C\r".getBytes());
                     mDeviceConnectionService.write("V\r".getBytes());
-                    try {
-                        Log.i(TAG, "Initializing adapter for 100K");
-                        Thread.sleep(CONNECTION_SETUP_DELAY_MS);
-                    } catch (InterruptedException e) {
-                        Log.e(TAG, e.toString(), e);
-                    }
                 }
-            }, CONNECTION_SETUP_DELAY_MS, CONNECTION_SETUP_TIMEOUT_MS);
+            }, CONNECTION_SETUP_DELAY_MS, CONNECTION_SETUP_DELAY_MS);
         }
 
         @Override
 		public void messageReceived(byte[] readBuf, long timestampMillis) {
             String message = new String(readBuf);
-            if(message.startsWith("V") && message.length() <= 6 && message.endsWith("\r")) {
+            if(message.startsWith("V") && message.length() <= 6 && message.endsWith("\r")) {            	
+                Log.i(TAG, "can232 version is " + message);
                 mmInitializerThread.cancel();
                 mDeviceConnectionService.removeListener(this);
+                Log.i(TAG, "Initializing adapter for 100K");
                 mDeviceConnectionService.write("S3\r".getBytes());
                 mDeviceConnectionService.write("O\r".getBytes());
                 mDeviceConnectionService.addListener(mDeviceListener);
@@ -204,14 +214,7 @@ public class Can232AdapterImpl implements Can232Adapter {
 		}
 
         @Override public void connectionLost() {
-            mmInitializerThread.cancel();
-        }
-
-        @Override public void idle(int idleDelay) {
-            mmInitializerThread.cancel();
-        }
-
-        @Override public void connecting(DeviceConnector deviceConnector) {
+        	allListeners.connectionLost();
             mmInitializerThread.cancel();
         }
     };

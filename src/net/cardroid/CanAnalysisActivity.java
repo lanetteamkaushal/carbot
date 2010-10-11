@@ -196,8 +196,9 @@ public class CanAnalysisActivity extends GuiceActivity {
 	@Override public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
 		case R.id.fake_on_menu:
-			mCardroid.setIsFake(!item.isChecked());
-			break;
+            boolean fake = !item.isChecked();
+            mCardroid.getCardroidService().setIsFake(fake);
+            break;
 		case R.id.filter_on_menu:
 			mFilterOn = !item.isChecked();
 			break;
